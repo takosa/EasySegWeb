@@ -5,21 +5,23 @@ import React, { useState, useCallback } from "react"
 /**
  * This is a React-based component template with functional component and hooks.
  */
-function MyComponent() {
+function ImageSelector() {
   // "useRenderData" returns the renderData passed from Python.
   const renderData = useRenderData()
 
-  const [numClicks, setNumClicks] = useState(0)
   const [isFocused, setIsFocused] = useState(false)
+  const [selected, setSelected] = useState(Array<number>())
 
   /** Click handler for our "Click Me!" button. */
-  const onClicked = useCallback(() => {
+  const onClicked = useCallback((index: number) => {
     // Increment `numClicks` state, and pass the new value back to
     // Streamlit via `Streamlit.setComponentValue`.
-    const newValue = numClicks + 1
-    setNumClicks(newValue)
+    const newValue = selected.includes(index) ? 
+      selected.filter((i) => i !== index) :
+      [...selected, index]
+    setSelected(newValue)
     Streamlit.setComponentValue(newValue)
-  }, [numClicks])
+  }, [selected])
 
   /** Focus handler for our "Click Me!" button. */
   const onFocus = useCallback(() => {
@@ -33,7 +35,7 @@ function MyComponent() {
 
   // Arguments that are passed to the plugin in Python are accessible
   // via `renderData.args`. Here, we access the "name" arg.
-  const name = renderData.args["name"]
+  const images = renderData.args["images"]
 
   // Streamlit sends us a theme object via renderData that we can use to ensure
   // that our component has visuals that match the active theme in a
@@ -46,9 +48,9 @@ function MyComponent() {
   if (theme) {
     // Use the theme object to style our button border. Alternatively, the
     // theme style is defined in CSS vars.
-    const borderStyling = `1px solid ${isFocused ? theme.primaryColor : "gray"}`
-    style.border = borderStyling
-    style.outline = borderStyling
+    //const borderStyling = `1px solid ${isFocused ? theme.primaryColor : "gray"}`
+    //style.border = borderStyling
+    //style.outline = borderStyling
   }
 
   // Show a button and some text.
@@ -56,19 +58,23 @@ function MyComponent() {
   // variable, and send its new value back to Streamlit, where it'll
   // be available to the Python program.
   return (
-    <span>
-      Hello, {name}! &nbsp;
-      <button
-        style={style}
-        onClick={onClicked}
-        disabled={renderData.disabled}
-        onFocus={onFocus}
-        onBlur={onBlur}
-      >
-        Click Me!
-      </button>
-    </span>
+    <div className="image-selector" style={style}>
+      {
+        images.map((image: any, index: number) => (
+          <figure
+            key={index}
+            className={selected.includes(index) ? "selected" : ""}
+            onClick={() => onClicked(index)}
+            onFocus={onFocus}
+            onBlur={onBlur}
+          >
+            <img src={image.src} alt={image.name} />
+            <figcaption>{image.name}</figcaption>
+          </figure>
+        ))
+      }
+    </div>
   )
 }
 
-export default MyComponent
+export default ImageSelector

@@ -1,12 +1,13 @@
 import React from "react"
 import ReactDOM from "react-dom"
 import { StreamlitProvider } from "streamlit-component-lib-react-hooks"
-import MyComponent from "./MyComponent"
+import ImageSelector from "./ImageSelector"
+import "./index.css"
 
 ReactDOM.render(
   <React.StrictMode>
     <StreamlitProvider>
-      <MyComponent />
+      <ImageSelector />
     </StreamlitProvider>
   </React.StrictMode>,
   document.getElementById("root")
